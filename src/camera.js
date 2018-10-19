@@ -17,10 +17,13 @@ class Camera {
     this._stream = null;
   }
 
-  async start() {
+  // facingMode is needed for iOS devices
+  // Options are 'environment' for back camera and 'user' for front camera
+  async start(facingMode = 'environment') {
     let constraints = {
       audio: false,
       video: {
+        facingMode: facingMode
         mandatory: {
           sourceId: this.id,
           minWidth: 600,
@@ -50,8 +53,8 @@ class Camera {
     this._stream = null;
   }
 
-  static async getCameras() {
-    await this._ensureAccess();
+  static async getCameras(facingMode = 'environment') {
+    await this._ensureAccess(facingMode);
 
     let devices = await navigator.mediaDevices.enumerateDevices();
     return devices
@@ -59,9 +62,9 @@ class Camera {
       .map(d => new Camera(d.deviceId, cameraName(d.label)));
   }
 
-  static async _ensureAccess() {
+  static async _ensureAccess(facingMode) {
     return await this._wrapErrors(async () => {
-      let access = await navigator.mediaDevices.getUserMedia({ video: true });
+      let access = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } });
       for (let stream of access.getVideoTracks()) {
         stream.stop();
       }
