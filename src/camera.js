@@ -76,7 +76,7 @@ class Camera {
     };
 
     if (iOS()) {
-      constraints.video = { facingMode: facingMode }
+      constraints.video = { facingMode: facingMode };
     };
 
     return await this._wrapErrors(async () => {
