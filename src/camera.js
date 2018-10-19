@@ -11,19 +11,20 @@ class MediaError extends Error {
 }
 
 class Camera {
-  constructor(id, name) {
+  constructor(id, name, facingMode) {
     this.id = id;
     this.name = name;
+    this.facingMode = facingMode;
     this._stream = null;
   }
 
   // facingMode is needed for iOS devices
   // Options are 'environment' for back camera and 'user' for front camera
-  async start(facingMode = 'environment') {
+  async start() {
     let constraints = {
       audio: false,
       video: {
-        facingMode: facingMode,
+        facingMode: this.facingMode,
         mandatory: {
           sourceId: this.id,
           minWidth: 600,
@@ -59,7 +60,7 @@ class Camera {
     let devices = await navigator.mediaDevices.enumerateDevices();
     return devices
       .filter(d => d.kind === 'videoinput')
-      .map(d => new Camera(d.deviceId, cameraName(d.label)));
+      .map(d => new Camera(d.deviceId, cameraName(d.label), facingMode));
   }
 
   static async _ensureAccess(facingMode) {
