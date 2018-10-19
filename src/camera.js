@@ -3,6 +3,10 @@ function cameraName(label) {
   return clean || label || null;
 }
 
+function iOS(){
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
 class MediaError extends Error {
   constructor(type) {
     super(`Cannot access video stream (${type}).`);
@@ -24,7 +28,6 @@ class Camera {
     let constraints = {
       audio: false,
       video: {
-        facingMode: this.facingMode,
         mandatory: {
           sourceId: this.id,
           minWidth: 600,
@@ -34,6 +37,10 @@ class Camera {
         optional: []
       }
     };
+
+    if (iOS()) {
+      constraints.video.facingMode = this.facingMode;
+    }
 
     this._stream = await Camera._wrapErrors(async () => {
       return await navigator.mediaDevices.getUserMedia(constraints);
@@ -64,8 +71,16 @@ class Camera {
   }
 
   static async _ensureAccess(facingMode) {
+    let constraints = {
+      video: true
+    };
+
+    if (iOS()) {
+      constraints.video = { facingMode: facingMode }
+    };
+
     return await this._wrapErrors(async () => {
-      let access = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } });
+      let access = await navigator.mediaDevices.getUserMedia(constraints);
       for (let stream of access.getVideoTracks()) {
         stream.stop();
       }
