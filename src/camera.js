@@ -23,7 +23,7 @@ class Camera {
     let constraints = {
       audio: false,
       video: {
-        facingMode: facingMode
+        facingMode: facingMode,
         mandatory: {
           sourceId: this.id,
           minWidth: 600,
